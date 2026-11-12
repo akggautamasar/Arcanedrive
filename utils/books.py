@@ -598,8 +598,8 @@ async def load_books_data() -> BooksLibrary:
             logger.error(f"Failed to load books.data from local cache: {e}")
 
     # ── 4. Nothing to restore from — start fresh ────────────────────────
-    if os.getenv("STRICT_RESTORE", "").lower() in ("1", "true", "yes"):
-        raise RuntimeError("Strict restore: refusing to create an empty books database")
+    if os.getenv("STRICT_RESTORE", "").lower() in ("1", "true", "yes") or books_cache_path.exists():
+        raise RuntimeError("Refusing to create empty books.data while strict mode is enabled or an existing database is present")
     BOOKS_DATA = BooksLibrary()
     BOOKS_DATA.save()
     logger.info("Created new empty books library")
