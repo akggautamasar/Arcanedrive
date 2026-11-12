@@ -41,10 +41,11 @@ async def initialize_clients():
                 )
                 client.loop = asyncio.get_running_loop()
                 await client.start()
-                await client.send_message(
-                    config.STORAGE_CHANNEL,
-                    f"Started - {type.title()} Client {client_id}",
-                )
+                if os.getenv("MIGRATION_READ_ONLY", "").lower() not in ("1", "true", "yes"):
+                    await client.send_message(
+                        config.STORAGE_CHANNEL,
+                        f"Started - {type.title()} Client {client_id}",
+                    )
                 multi_clients[client_id] = client
                 work_loads[client_id] = 0
             elif type == "user":
