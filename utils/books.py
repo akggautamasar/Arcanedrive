@@ -495,7 +495,7 @@ async def _discover_books_backup_message(client: Client) -> Optional[Message]:
 
     # ── Slow path: scan recent history for the backup document ─────────
     try:
-        async for msg in client.search_messages(
+        async for msg in __import__("utils.clients", fromlist=["get_discovery_client"]).get_discovery_client().search_messages(
             config.BOOKS_CHANNEL, filter=enums.MessagesFilter.DOCUMENT
         ):
             if msg.document and msg.document.file_name == "books.data":
@@ -535,7 +535,7 @@ async def load_books_data() -> BooksLibrary:
     # an older pinned or configured backup message.
     if os.getenv("BOOKS_BACKUP_DISCOVERY", "").lower() in ("1", "true", "yes"):
         try:
-            async for msg in client.search_messages(
+            async for msg in __import__("utils.clients", fromlist=["get_discovery_client"]).get_discovery_client().search_messages(
                 config.BOOKS_CHANNEL, filter=enums.MessagesFilter.DOCUMENT
             ):
                 if msg.document and msg.document.file_name == "books.data":
