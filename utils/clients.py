@@ -58,10 +58,11 @@ async def initialize_clients():
                     workdir=session_cache_path,
                     no_updates=True,
                 ).start()
-                await client.send_message(
-                    config.STORAGE_CHANNEL,
-                    f"Started - {type.title()} Client {client_id}",
-                )
+                if os.getenv("MIGRATION_READ_ONLY", "").lower() not in ("1", "true", "yes"):
+                    await client.send_message(
+                        config.STORAGE_CHANNEL,
+                        f"Started - {type.title()} Client {client_id}",
+                    )
                 premium_clients[client_id] = client
                 premium_work_loads[client_id] = 0
 
@@ -102,6 +103,13 @@ async def initialize_clients():
         asyncio.create_task(backup_drive_data())
     else:
         logger.warning("Migration read-only mode: drive backup writer disabled")
+
+
+def get_discovery_client() -> Client:
+    """Telegram history search requires a user session, not a bot."""
+    if not premium_clients:
+        raise RuntimeError("Telegram backup discovery requires STRING_SESSIONS user account")
+    return next(iter(premium_clients.values()))
 
 
 def get_client(premium_required=False) -> Client:
