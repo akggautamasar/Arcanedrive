@@ -559,7 +559,7 @@ async def loadDriveData():
     STRICT_RESTORE=1 refuses to create an empty database when restore fails.
     """
     global DRIVE_DATA, BOT_MODE
-    from utils.clients import get_client
+    from utils.clients import get_client, get_discovery_client
 
     client = get_client()
     discover = os.getenv("DRIVE_BACKUP_DISCOVERY", "").lower() in ("1", "true", "yes")
@@ -572,7 +572,7 @@ async def loadDriveData():
             # Telegram search results are newest first; prioritize a newly
             # uploaded drive.data over an old configured backup message.
             from pyrogram import enums
-            async for msg in client.search_messages(
+            async for msg in get_discovery_client().search_messages(
                 config.STORAGE_CHANNEL, filter=enums.MessagesFilter.DOCUMENT
             ):
                 if msg.document and msg.document.file_name == "drive.data":
