@@ -100,11 +100,12 @@ import shutil
 def reset_cache_dir():
     cache_dir = Path("./cache")
     downloads_dir = Path("./downloads")
-    shutil.rmtree(cache_dir, ignore_errors=True)
+    # Database snapshots live in cache: NEVER delete this directory at startup.
+    # Downloads are transient and can be safely cleared.
     shutil.rmtree(downloads_dir, ignore_errors=True)
     cache_dir.mkdir(parents=True, exist_ok=True)
     downloads_dir.mkdir(parents=True, exist_ok=True)
-    logger.info("Cache and downloads directory reset")
+    logger.info("Downloads directory reset; persistent database cache preserved")
 
 
 def parse_content_disposition(content_disposition):
