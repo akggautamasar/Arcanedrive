@@ -619,8 +619,8 @@ async def loadDriveData():
             logger.warning(f"Invalid drive backup message {msg.id}: {e}")
 
     if DRIVE_DATA is None:
-        if strict:
-            raise RuntimeError("No valid drive.data backup found; " + "; ".join(errors[-5:]))
+        if strict or drive_cache_path.exists():
+            raise RuntimeError("Refusing to create empty drive.data while strict mode is enabled or an existing database is present; " + "; ".join(errors[-5:]))
         logger.warning("No valid drive backup; creating a fresh database (strict mode disabled)")
         DRIVE_DATA = NewDriveData({"/": Folder("/", "/")}, [])
         DRIVE_DATA.save()
