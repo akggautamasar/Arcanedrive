@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player - EduMaster Pro</title>
+
+    <link href="//vjs.zencdn.net/8.3.0/video-js.min.css" rel="stylesheet">
+    <script src="//vjs.zencdn.net/8.3.0/video.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .player-header {
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        .player-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .player-subtitle {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            margin-bottom: 20px;
+        }
+
+        .video-js {
+            width: 100% !important;
+            height: auto !important;
+            aspect-ratio: 16/9;
+        }
+
+        .video-js .vjs-big-play-button {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(14, 165, 233, 0.9);
+            border: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.2s;
+        }
+
+        .video-js .vjs-big-play-button:hover {
+            background: rgba(14, 165, 233, 1);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .video-js .vjs-control-bar {
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+            height: 60px;
+            padding: 0 15px;
+        }
+
+        .video-js .vjs-progress-control {
+            position: absolute;
+            top: -10px;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 10px;
+        }
+
+        .video-js .vjs-progress-holder {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .video-js .vjs-play-progress {
+            background: #0ea5e9;
+            border-radius: 3px;
+        }
+
+        .video-js .vjs-load-progress {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 3px;
+        }
+
+        .controls-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-group {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 8px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .speed-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .quality-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            min-width: 50px;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .control-btn.active {
+            background: #0ea5e9;
+            border-color: #0ea5e9;
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.5);
+        }
+
+        .bottom-controls {
+            display: flex;
+            gap: 15px;
+            padding: 0 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            border-color: #0ea5e9;
+        }
+
+        .action-btn.primary:hover {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #22c55e;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 10000;
+            font-weight: 600;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 1024px) {
+            .controls-panel {
+                position: relative;
+                top: 0;
+                right: 0;
+                justify-content: center;
+                margin-bottom: 15px;
+                flex-wrap: wrap;
+            }
+
+            .player-wrapper {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .player-title {
+                font-size: 1.2rem;
+            }
+
+            .speed-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .quality-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .control-btn {
+                padding: 6px 10px;
+                font-size: 0.7rem;
+                min-width: 45px;
+            }
+
+            .action-btn {
+                padding: 10px 18px;
+                font-size: 0.85rem;
+            }
+
+            .bottom-controls {
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .player-wrapper {
+                padding: 10px;
+            }
+
+            .player-header {
+                margin-bottom: 15px;
+            }
+
+            .video-js .vjs-big-play-button {
+                width: 60px;
+                height: 60px;
+            }
+
+            .control-group {
+                padding: 10px;
+            }
+
+            .bottom-controls {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="player-wrapper">
+        <div class="player-header">
+            <h1 class="player-title">EduMaster Pro - Video Player</h1>
+            <p class="player-subtitle">Premium Learning Experience</p>
+        </div>
+
+        <div class="video-container">
+            <div class="controls-panel">
+                <div class="control-group">
+                    <div class="control-label">Speed</div>
+                    <div class="speed-grid">
+                        <button class="control-btn" data-speed="0.25">0.25x</button>
+                        <button class="control-btn" data-speed="0.5">0.5x</button>
+                        <button class="control-btn" data-speed="0.75">0.75x</button>
+                        <button class="control-btn active" data-speed="1">1x</button>
+                        <button class="control-btn" data-speed="1.25">1.25x</button>
+                        <button class="control-btn" data-speed="1.5">1.5x</button>
+                        <button class="control-btn" data-speed="1.75">1.75x</button>
+                        <button class="control-btn" data-speed="2">2x</button>
+                        <button class="control-btn" data-speed="2.5">2.5x</button>
+                        <button class="control-btn" data-speed="3">3x</button>
+                        <button class="control-btn" data-speed="3.5">3.5x</button>
+                        <button class="control-btn" data-speed="4">4x</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">Quality</div>
+                    <div class="quality-grid">
+                        <button class="control-btn active" data-quality="original">Original</button>
+                        <button class="control-btn" data-quality="480p">480p</button>
+                        <button class="control-btn" data-quality="360p">360p</button>
+                        <button class="control-btn" data-quality="240p">240p</button>
+                    </div>
+                </div>
+            </div>
+
+            <video id="my-player" class="video-js vjs-fluid" controls preload="metadata" data-setup='{}'>
+                <source id="video-src" src="" type="video/mp4">
+                <p class="vjs-no-js">
+                    To view this video please enable JavaScript and use a modern browser.
+                </p>
+            </video>
+        </div>
+
+        <div class="bottom-controls">
+            <button class="action-btn primary" onclick="copyStreamUrl()">
+                📋 Copy Stream URL
+            </button>
+            <button class="action-btn" onclick="copyDownloadUrl()">
+                📋 Copy Download URL
+            </button>
+            <button class="action-btn" onclick="openDownloadUrl()">
+                ⬇️ Open Download
+            </button>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        const downloadUrl = new URL(window.location.href).searchParams.get('url');
+        
+        // Detect mime type from filename in URL
+        function getMimeType(url) {
+            const ext = url.split('?')[0].split('.').pop().toLowerCase();
+            const mimes = { 'mp4':'video/mp4','webm':'video/webm','mkv':'video/x-matroska',
+                'mov':'video/quicktime','avi':'video/x-msvideo','m4v':'video/mp4',
+                'flv':'video/x-flv','wmv':'video/x-ms-wmv','ts':'video/mp2t',
+                '3gp':'video/3gpp','ogv':'video/ogg','mpg':'video/mpeg','mpeg':'video/mpeg' };
+            return mimes[ext] || 'video/mp4';
+        }
+        let player = null;
+        let currentSpeed = 1.0;
+        let currentQuality = 'original';
+
+        if (!downloadUrl) {
+            alert('No video URL provided in ?url= parameter.');
+        } else {
+            player = videojs('my-player', {
+                responsive: true,
+                fluid: true,
+                preload: "metadata",
+                playbackRates: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4],
+                controls: true,
+                crossOrigin: "anonymous"
+            });
+
+            player.src({ type: getMimeType(downloadUrl), src: downloadUrl });
+
+            player.ready(() => {
+                const savedSpeed = localStorage.getItem('videoSpeed');
+                if (savedSpeed) setPlaybackSpeed(parseFloat(savedSpeed));
+
+                const savedQuality = localStorage.getItem('videoQuality');
+                if (savedQuality) setVideoQuality(savedQuality);
+            });
+        }
+
+        async function setVideoQuality(quality) {
+            if (!player) return;
+
+            const currentTime = player.currentTime() || 0;
+            const wasPlaying = !player.paused();
+
+            currentQuality = quality;
+
+            let newSrc = downloadUrl;
+            if (quality !== 'original') {
+                const urlObj = new URL(downloadUrl);
+                const pathParam = urlObj.searchParams.get('path');
+                if (pathParam) {
+                    newSrc = `/file?path=${encodeURIComponent(pathParam)}&quality=${quality}`;
+                }
+            }
+
+            player.src({ type: "video/mp4", src: newSrc });
+
+            player.one('loadedmetadata', () => {
+                player.currentTime(Math.min(currentTime, player.duration() - 1 || 0));
+                if (wasPlaying) player.play().catch(() => {});
+                updateQualityDisplay(quality);
+                localStorage.setItem('videoQuality', quality);
+            });
+
+            setTimeout(() => {
+                if (player.currentTime() < 1 && currentTime > 1) {
+                    player.currentTime(currentTime);
+                }
+            }, 800);
+        }
+
+        function setPlaybackSpeed(speed) {
+            if (player) {
+                currentSpeed = speed;
+                player.playbackRate(speed);
+                updateSpeedDisplay(speed);
+                localStorage.setItem('videoSpeed', speed.toString());
+            }
+        }
+
+        function updateSpeedDisplay(speed) {
+            document.querySelectorAll('[data-speed]').forEach(btn => {
+                btn.classList.toggle('active', parseFloat(btn.dataset.speed) === speed);
+            });
+        }
+
+        function updateQualityDisplay(quality) {
+            document.querySelectorAll('[data-quality]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.quality === quality);
+            });
+        }
+
+        document.querySelectorAll('[data-speed]').forEach(btn => {
+            btn.addEventListener('click', () => setPlaybackSpeed(parseFloat(btn.dataset.speed)));
+        });
+
+        document.querySelectorAll('[data-quality]').forEach(btn => {
+            btn.addEventListener('click', () => setVideoQuality(btn.dataset.quality));
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+
+            const speedPresets = { '1':0.25, '2':0.5, '3':0.75, '4':1.0, '5':1.25, '6':1.5, '7':2.0, '8':2.5, '9':3.0 };
+
+            if (speedPresets[e.key]) {
+                e.preventDefault();
+                setPlaybackSpeed(speedPresets[e.key]);
+            } else if (e.key === '0') {
+                e.preventDefault();
+                setPlaybackSpeed(1.0);
+            }
+        });
+
+        function showNotification(msg) {
+            const notification = document.getElementById('notification');
+            notification.textContent = msg;
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2500);
+        }
+
+        function copyTextToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('Link copied to clipboard!');
+            }).catch(() => {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showNotification('Link copied to clipboard!');
+            });
+        }
+
+        function copyStreamUrl() { copyTextToClipboard(window.location.href); }
+        function copyDownloadUrl() { if (downloadUrl) copyTextToClipboard(downloadUrl); }
+        function openDownloadUrl() { if (downloadUrl) window.open(downloadUrl, '_blank'); }
+
+        window.addEventListener('resize', () => player && player.trigger('resize'));
+    </script>
+</body>
+</html>
