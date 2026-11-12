@@ -531,6 +531,27 @@ async def load_books_data() -> BooksLibrary:
 
     client = get_client()
 
+    # During migration, prefer the newest manually uploaded books.data over
+    # an older pinned or configured backup message.
+    if os.getenv("BOOKS_BACKUP_DISCOVERY", "").lower() in ("1", "true", "yes"):
+        try:
+            async for msg in client.search_messages(
+                config.BOOKS_CHANNEL, filter=enums.MessagesFilter.DOCUMENT
+            ):
+                if msg.document and msg.document.file_name == "books.data":
+                    loaded = await _load_books_data_from_message(client, msg)
+                    if not isinstance(loaded, BooksLibrary) or not isinstance(loaded.books, dict):
+                        raise ValueError("Invalid books database")
+                    BOOKS_DATA = loaded
+                    if os.getenv("MIGRATION_READ_ONLY", "").lower() not in ("1", "true", "yes"):
+                        BOOKS_DATA.save()
+                    logger.info(f"Restored newest books.data from message {msg.id}: {len(BOOKS_DATA.books)} books")
+                    return BOOKS_DATA
+        except Exception as e:
+            logger.warning(f"Newest books.data discovery failed: {e}")
+            if os.getenv("STRICT_RESTORE", "").lower() in ("1", "true", "yes"):
+                raise RuntimeError("Strict restore: latest books.data is invalid") from e
+
     # ── 1. Try the explicit BOOKS_DB_MSG_ID, if set ─────────────────────
     msg_id = getattr(config, "BOOKS_DB_MSG_ID", None)
     if msg_id:
