@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 import os
 import signal
 import copy
+import tempfile
 
 logger = Logger(__name__)
 
@@ -78,8 +79,18 @@ class NewDriveData:
         self.isUpdated = False
 
     def save(self) -> None:
-        with open(drive_cache_path, "wb") as f:
-            dill.dump(self, f)
+        # Serialize to a sibling temporary file and replace atomically.
+        # A failed dump must never truncate the last good database.
+        fd, temp_path = tempfile.mkstemp(prefix=".drive-", suffix=".tmp", dir=cache_dir)
+        try:
+            with os.fdopen(fd, "wb") as f:
+                dill.dump(self, f)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temp_path, drive_cache_path)
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
         self.isUpdated = True
         logger.info("Drive data saved successfully.")
 
@@ -536,49 +547,85 @@ async def init_drive_data():
         changed = True
 
     # Only save if we actually added new attributes
-    if changed:
+    if changed and os.getenv("MIGRATION_READ_ONLY", "").lower() not in ("1", "true", "yes"):
         DRIVE_DATA.save()
     logger.info("Drive data initialization completed.")
 
 
 async def loadDriveData():
-    global DRIVE_DATA, BOT_MODE
+    """Restore the newest valid Telegram drive snapshot without overwriting it.
 
-    logger.info("Loading drive data.")
+    DRIVE_BACKUP_DISCOVERY=1 scans recent documents before the configured ID.
+    STRICT_RESTORE=1 refuses to create an empty database when restore fails.
+    """
+    global DRIVE_DATA, BOT_MODE
     from utils.clients import get_client
 
     client = get_client()
-    try:
+    discover = os.getenv("DRIVE_BACKUP_DISCOVERY", "").lower() in ("1", "true", "yes")
+    strict = os.getenv("STRICT_RESTORE", "").lower() in ("1", "true", "yes")
+    candidates = []
+    seen = set()
+
+    if discover:
         try:
-            msg: Message = await client.get_messages(
-                config.STORAGE_CHANNEL, config.DATABASE_BACKUP_MSG_ID
-            )
+            # Telegram search results are newest first; prioritize a newly
+            # uploaded drive.data over an old configured backup message.
+            from pyrogram import enums
+            async for msg in client.search_messages(
+                config.STORAGE_CHANNEL, filter=enums.MessagesFilter.DOCUMENT
+            ):
+                if msg.document and msg.document.file_name == "drive.data":
+                    if msg.id not in seen:
+                        candidates.append(msg)
+                        seen.add(msg.id)
+                if len(candidates) >= 30:
+                    break
         except Exception as e:
-            logger.error(f"Error fetching backup message: {e}")
+            logger.warning(f"Drive backup discovery failed: {e}")
 
-            # Forcefully terminates the program immediately
-            os.kill(os.getpid(), signal.SIGKILL)
-
-        if not msg.document:
-            logger.error(f"Error fetching backup message: {e}")
-
-            # Forcefully terminates the program immediately
-            os.kill(os.getpid(), signal.SIGKILL)
-
-        if msg.document.file_name == "drive.data":
-            dl_path = await msg.download()
-            with open(dl_path, "rb") as f:
-                DRIVE_DATA = dill.load(f)
-
-            logger.info("Drive data loaded from Telegram backup.")
-        else:
-            raise Exception("Backup drive.data file not found on Telegram.")
+    try:
+        msg = await client.get_messages(config.STORAGE_CHANNEL, config.DATABASE_BACKUP_MSG_ID)
+        if msg and msg.id not in seen:
+            candidates.append(msg)
     except Exception as e:
-        logger.warning(f"Backup load failed: {e}")
-        if os.getenv("STRICT_RESTORE", "").lower() in ("1", "true", "yes"):
-            raise RuntimeError("Strict restore: refusing to create an empty drive database") from e
-        logger.info("Creating new drive.data file.")
+        logger.warning(f"Configured drive backup lookup failed: {e}")
+
+    errors = []
+    for msg in candidates:
+        if not (msg and msg.document and msg.document.file_name == "drive.data"):
+            continue
+        try:
+            dl_path = await msg.download()
+            try:
+                with open(dl_path, "rb") as f:
+                    loaded = dill.load(f)
+            finally:
+                # Only remove the downloaded temporary file, never cache/drive.data.
+                if dl_path and Path(dl_path).resolve() != drive_cache_path.resolve():
+                    Path(dl_path).unlink(missing_ok=True)
+            if not isinstance(loaded, NewDriveData):
+                raise ValueError("Snapshot is not NewDriveData")
+            root = getattr(loaded, "contents", {}).get("/")
+            if not isinstance(root, Folder) or not isinstance(root.contents, dict):
+                raise ValueError("Snapshot has no valid root folder")
+            if not isinstance(getattr(loaded, "used_ids", None), list):
+                raise ValueError("Snapshot has invalid used_ids")
+            DRIVE_DATA = loaded
+            logger.info(f"Restored drive.data from channel message {msg.id}")
+            break
+        except Exception as e:
+            errors.append(f"message {msg.id}: {type(e).__name__}: {e}")
+            logger.warning(f"Invalid drive backup message {msg.id}: {e}")
+
+    if DRIVE_DATA is None:
+        if strict:
+            raise RuntimeError("No valid drive.data backup found; " + "; ".join(errors[-5:]))
+        logger.warning("No valid drive backup; creating a fresh database (strict mode disabled)")
         DRIVE_DATA = NewDriveData({"/": Folder("/", "/")}, [])
+        DRIVE_DATA.save()
+    elif os.getenv("MIGRATION_READ_ONLY", "").lower() not in ("1", "true", "yes"):
+        # Persist the verified restored snapshot, not a failed candidate.
         DRIVE_DATA.save()
 
     await init_drive_data()
