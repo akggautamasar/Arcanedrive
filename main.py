@@ -3,6 +3,7 @@ from utils.downloader import (
     get_file_info_from_url,
 )
 import asyncio
+import os
 import secrets
 import hashlib
 from datetime import datetime, timedelta
@@ -130,6 +131,8 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"Failed to initialize clients: {e}")
         logger.warning("Server will start but file operations will be unavailable")
+        if os.getenv("STRICT_RESTORE", "").lower() in ("1", "true", "yes"):
+            raise RuntimeError("Strict restore: aborting startup after client initialization failure") from e
 
     # Start the website auto ping task
     asyncio.create_task(auto_ping_website())
@@ -155,7 +158,10 @@ async def lifespan(app: FastAPI):
         import config as _cfg
         if _cfg.BOOKS_CHANNEL:
             await load_books_data()
-            asyncio.create_task(backup_books_data())
+            if os.getenv("MIGRATION_READ_ONLY", "").lower() not in ("1", "true", "yes"):
+                asyncio.create_task(backup_books_data())
+            else:
+                logger.warning("Migration read-only mode: books backup writer disabled")
             # Listen for files posted directly into BOOKS_CHANNEL (outside
             # the website) so they get auto-registered and show up on the
             # site too, not just files uploaded through /api/books/upload.
@@ -165,6 +171,8 @@ async def lifespan(app: FastAPI):
             logger.info("Books library disabled (BOOKS_CHANNEL not set)")
     except Exception as e:
         logger.error(f"Failed to load books library: {e}")
+        if os.getenv("STRICT_RESTORE", "").lower() in ("1", "true", "yes"):
+            raise RuntimeError("Strict restore: aborting startup after books restore failure") from e
 
     yield
 
