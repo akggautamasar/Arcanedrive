@@ -575,6 +575,8 @@ async def loadDriveData():
             raise Exception("Backup drive.data file not found on Telegram.")
     except Exception as e:
         logger.warning(f"Backup load failed: {e}")
+        if os.getenv("STRICT_RESTORE", "").lower() in ("1", "true", "yes"):
+            raise RuntimeError("Strict restore: refusing to create an empty drive database") from e
         logger.info("Creating new drive.data file.")
         DRIVE_DATA = NewDriveData({"/": Folder("/", "/")}, [])
         DRIVE_DATA.save()

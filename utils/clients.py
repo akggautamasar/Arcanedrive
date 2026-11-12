@@ -97,7 +97,10 @@ async def initialize_clients():
     await loadDriveData()
 
     # Start the backup drive data task
-    asyncio.create_task(backup_drive_data())
+    if os.getenv("MIGRATION_READ_ONLY", "").lower() not in ("1", "true", "yes"):
+        asyncio.create_task(backup_drive_data())
+    else:
+        logger.warning("Migration read-only mode: drive backup writer disabled")
 
 
 def get_client(premium_required=False) -> Client:
