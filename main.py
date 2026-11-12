@@ -165,7 +165,8 @@ async def lifespan(app: FastAPI):
             # Listen for files posted directly into BOOKS_CHANNEL (outside
             # the website) so they get auto-registered and show up on the
             # site too, not just files uploaded through /api/books/upload.
-            register_books_channel_listener(list(multi_clients.values()))
+            if os.getenv("MIGRATION_READ_ONLY", "").lower() not in ("1", "true", "yes"):
+                register_books_channel_listener(list(multi_clients.values()))
             logger.info(f"Books library enabled (channel={_cfg.BOOKS_CHANNEL})")
         else:
             logger.info("Books library disabled (BOOKS_CHANNEL not set)")
