@@ -54,3 +54,43 @@ svg { flex-shrink:0; }
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; }
 }
+
+
+/* Phase 2.1: compact mobile file manager, aligned with actual directory markup */
+@media (max-width: 700px) {
+  .container { width:100%; max-width:100vw; }
+  .main-content { overflow-x:hidden; }
+  .content-area { padding:0 12px 12px!important; }
+  .content-header { display:none!important; }
+  .directory-container { overflow:hidden!important; border-radius:16px!important; }
+  .directory-table { min-width:0!important; width:100%; overflow:hidden!important; border-radius:16px!important; }
+  .table-header { grid-template-columns:minmax(0,1fr) 76px 42px!important; gap:6px!important; padding:12px!important; }
+  .table-header .duration-cell { display:none!important; }
+  .table-header .actions-cell { justify-content:center; }
+  .table-header .name-cell { min-width:0; }
+  .directory-item { grid-template-columns:minmax(0,1fr) 76px 42px!important; gap:6px!important; padding:11px 12px!important; min-height:66px!important; }
+  .directory-item .item-duration { display:none!important; }
+  .directory-item .item-name { min-width:0!important; gap:10px!important; overflow:hidden; }
+  .directory-item .item-text { min-width:0!important; flex:1 1 auto; overflow:hidden; }
+  .directory-item .item-title { display:block; min-width:0; max-width:100%; white-space:normal!important; overflow-wrap:anywhere; word-break:normal; line-height:1.35; font-size:13px; }
+  .directory-item .item-icon { flex:0 0 36px; width:36px!important; height:36px!important; }
+  .directory-item .item-size { min-width:0; text-align:right; white-space:normal; overflow-wrap:normal; font-size:11px; color:var(--text-muted); }
+  .directory-item .item-actions { min-width:0; justify-content:center; }
+  .directory-item .more-btn { width:40px!important; height:44px!important; }
+  .directory-item .more-btn svg { width:18px; height:18px; }
+  .directory-item .fav-btn { flex-shrink:0; }
+  .table-body { overflow-x:hidden!important; overflow-y:auto!important; }
+  .breadcrumb-container { min-width:0; max-width:100%; overflow:hidden; }
+  .breadcrumb { min-width:0; max-width:100%; overflow-x:auto; white-space:nowrap; gap:2px; }
+  .breadcrumb-item { flex:0 0 auto; font-size:12px; }
+  .stats-container { max-width:100%; }
+  .toolbar { max-width:100%; min-width:0; }
+  .toolbar > * { min-width:0; }
+  .directory-grid { overflow-y:auto; min-height:0; }
+  .premium-features { right:12px!important; bottom:16px!important; }
+}
+@media (max-width:390px) {
+  .table-header { grid-template-columns:minmax(0,1fr) 58px 40px!important; }
+  .directory-item { grid-template-columns:minmax(0,1fr) 58px 40px!important; }
+  .directory-item .item-icon { width:32px!important; height:32px!important; flex-basis:32px; }
+}
