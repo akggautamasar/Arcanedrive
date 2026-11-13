@@ -1,0 +1,56 @@
+/* ArcaneDrive Phase 2: additive responsive UX layer. No API or data changes. */
+:root { --arc-touch:44px; }
+html { -webkit-text-size-adjust:100%; }
+body { overscroll-behavior-y:contain; }
+button, a, input, select, textarea { -webkit-tap-highlight-color:transparent; }
+button, [role="button"] { touch-action:manipulation; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible,
+[tabindex]:focus-visible { outline:3px solid #14b8a6; outline-offset:3px; }
+.directory-container, .content-area, .main-content, .table-body { min-width:0; }
+.directory-container { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.directory-table { min-width:0; }
+.header-cell, .table-cell { min-width:0; }
+.table-body :is(a,button) { overflow-wrap:anywhere; }
+.directory-grid { grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr)); gap:clamp(10px,1.5vw,20px); }
+.directory-grid > * { min-width:0; }
+.directory-grid :is(img,video) { max-width:100%; object-fit:contain; }
+.content-title { overflow-wrap:anywhere; }
+.content-subtitle { max-width:65ch; }
+input,textarea,select { max-width:100%; }
+img,svg,video { height:auto; }
+svg { flex-shrink:0; }
+@media (max-width: 900px) {
+  :root { --sidebar-width:240px; }
+  .container { grid-template-columns:minmax(0,1fr); }
+  .main-content,.content-area { width:100%; min-width:0; }
+  .content-area { padding-inline:clamp(12px,3vw,24px); }
+  .directory-container { border-radius:14px; }
+  .directory-grid { grid-template-columns:repeat(auto-fill,minmax(min(100%,160px),1fr)); }
+}
+@media (max-width: 640px) {
+  html { scroll-padding-top:72px; }
+  body { font-size:14px; }
+  .container { min-height:100dvh; height:100dvh; }
+  .content-area { padding-inline:12px; }
+  .content-header { padding-block:12px; }
+  .content-title { font-size:clamp(1.1rem,5vw,1.5rem); line-height:1.25; }
+  .content-subtitle { font-size:.83rem; line-height:1.45; }
+  .directory-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .directory-grid > * { max-width:100%; overflow:hidden; }
+  .directory-grid :is(h3,h4,p,span) { overflow-wrap:anywhere; }
+  .table-header { font-size:.75rem; }
+  .duration-cell { display:none; }
+  .mobile-menu-toggle { min-width:var(--arc-touch); min-height:var(--arc-touch); }
+  .bulk-btn { min-height:var(--arc-touch); }
+  input,select,textarea { font-size:16px; }
+  .directory-container { max-width:100%; }
+}
+@media (max-width: 360px) {
+  .directory-grid { grid-template-columns:minmax(0,1fr); }
+}
+@media (pointer:coarse) {
+  .feature-toggle, .mobile-menu-toggle, .bulk-btn { min-width:var(--arc-touch); min-height:var(--arc-touch); }
+}
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; }
+}
