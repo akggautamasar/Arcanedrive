@@ -58,3 +58,35 @@ body .main-content{background:#edf2fc!important;padding:0 12px 95px!important;ov
 [data-theme="dark"] .arc-v2-panel,[data-theme="dark"] .arc-v2-quick button{background:#172a44;color:#e7f1ff}
 }
 @media(min-width:701px){.arc-v2,.arc-v2-tabs{display:none!important}}
+
+/* Compact mobile layout: prioritize file list over dashboard chrome. */
+@media(max-width:700px){
+  .arc-v2-head{padding:12px 14px 13px!important;border-radius:0 0 18px 18px!important}
+  .arc-v2-top{min-height:43px!important;gap:10px!important}
+  .arc-v2-logo{width:34px!important;height:34px!important;border-radius:11px!important}
+  .arc-v2-logo svg{width:21px!important;height:21px!important;stroke:#3dd8fa!important;fill:none!important}
+  .arc-v2-brand strong{font-size:19px!important}
+  .arc-v2-brand small{font-size:10px!important;margin-top:1px!important}
+  .arc-v2-icon svg{stroke:#fff!important;fill:none!important}
+  #v2-storage{display:none!important}
+  .arc-v2-quick{gap:7px!important;margin:9px 0 6px!important}
+  .arc-v2-quick button{min-height:55px!important;border-radius:13px!important;gap:4px!important;font-size:10px!important;padding:6px 2px!important}
+  .arc-v2-quick svg{width:20px!important;height:20px!important}
+  .arc-v2-title{font-size:16px!important;margin:9px 3px 7px!important}
+  .toolbar{margin:0 0 6px!important;min-height:40px!important}
+  .toolbar .sort-select{min-height:39px!important}
+  .breadcrumb-container{margin:0 0 7px!important}
+  .breadcrumb{min-height:40px!important;padding:5px 9px!important}
+  .content-area{min-height:0!important;height:auto!important;max-height:none!important;overflow:visible!important;padding-bottom:0!important}
+  .content-area .content-header{display:none!important}
+  .directory-container,.directory-table,#list-view{height:auto!important;max-height:none!important;overflow:visible!important}
+  .directory-container{margin-bottom:12px!important}
+  .directory-item{min-height:54px!important;padding:7px 10px!important}
+  .directory-item .item-icon{width:32px!important;height:32px!important;flex-basis:32px!important}
+  .directory-item .item-size{padding-left:42px!important}
+  .directory-item .item-title{font-size:13px!important}
+  .arc-v2-tabs{padding:5px 8px calc(5px + env(safe-area-inset-bottom,0px))!important}
+  .arc-v2-tabs button{min-height:46px!important}
+  .arc-v2-tabs svg{width:20px!important;height:20px!important}
+  body .main-content{padding-bottom:80px!important}
+}
