@@ -1,0 +1,40 @@
+/* ArcaneDrive Design 1 — approved Luxury Glass Edition.
+   Mobile visual layer only. Existing data, events and APIs remain untouched. */
+@media(max-width:700px){
+:root{--lux-navy:#061633;--lux-blue:#0864d9;--lux-ice:#dfeeff;--lux-border:rgba(110,164,229,.23)}
+html,body{background:#dceafe!important}
+body .main-content{background:linear-gradient(160deg,#d8e9ff 0%,#e9f3ff 35%,#dfeaff 100%)!important;padding:0 10px 86px!important}
+.arc-v2-head{position:relative;isolation:isolate;background:linear-gradient(125deg,#03152e 0%,#07326b 66%,#0755a0 100%)!important;border-radius:0 0 22px 22px!important;padding:14px 16px 17px!important;overflow:hidden}
+.arc-v2-head::before{content:"";position:absolute;z-index:-1;width:250px;height:140px;right:-35px;top:5px;border-radius:60% 40% 0 70%;background:linear-gradient(125deg,transparent 12%,rgba(0,179,255,.19) 44%,rgba(18,112,241,.35) 80%);transform:rotate(-20deg);pointer-events:none}
+.arc-v2-head::after{content:"";position:absolute;z-index:-1;width:170px;height:100px;right:30px;bottom:-70px;border-radius:100%;background:#1fb9ff;filter:blur(55px);opacity:.45;pointer-events:none}
+.arc-v2-top{min-height:46px!important}
+.arc-v2-logo{width:41px!important;height:41px!important;border:2px solid #38d9ff!important;border-radius:13px!important;box-shadow:0 0 17px #02aaff48,inset 0 0 12px #0075cf40}
+.arc-v2-logo svg{width:26px!important;height:26px!important;stroke:#6eeaff!important;fill:none!important}
+.arc-v2-brand strong{font-size:21px!important;letter-spacing:-.65px!important}
+.arc-v2-brand small{color:#c4dbf7!important;font-size:10.5px!important}
+.arc-v2-icon{border-radius:12px!important;background:rgba(255,255,255,.08)!important}
+.arc-v2-icon svg{stroke:#fff!important;fill:none!important}
+.arc-v2-quick{gap:7px!important;margin:10px 1px 11px!important}
+.arc-v2-quick button{min-height:58px!important;border-radius:15px!important;gap:5px!important;font-size:11px!important;font-weight:650!important;color:#08254d!important;background:linear-gradient(140deg,rgba(255,255,255,.93),rgba(232,245,255,.8))!important;border:1px solid rgba(255,255,255,.95)!important;box-shadow:0 4px 14px #195da91a,inset 0 1px 0 #fff!important;backdrop-filter:blur(10px)}
+.arc-v2-quick svg{width:21px!important;height:21px!important;stroke:#0663c8!important}
+.arc-v2-quick button:active{transform:scale(.97)}
+.arc-v2-title{color:#071d42!important;font-size:18px!important;letter-spacing:-.5px;margin:10px 5px 9px!important}
+.toolbar{gap:7px!important}
+.toolbar .sort-select,.toolbar select{background:rgba(255,255,255,.91)!important;border:1px solid #fff!important;border-radius:15px!important;box-shadow:0 4px 13px #1a5da71a!important}
+.breadcrumb{background:rgba(255,255,255,.82)!important;border:1px solid #fff!important;border-radius:15px!important;box-shadow:0 3px 12px #1a5da713!important}
+.directory-container,.directory-table,#list-view{border-radius:19px!important;background:rgba(255,255,255,.94)!important}
+.directory-container{border:1px solid rgba(255,255,255,.95)!important;box-shadow:0 9px 23px #1a5da71a!important}
+.directory-item{min-height:59px!important;background:rgba(255,255,255,.95)!important;padding:8px 12px!important;border-bottom:1px solid #dce8f7!important}
+.directory-item .item-title{font-size:13.5px!important;color:#0a1c3a!important;letter-spacing:-.15px}
+.directory-item .item-size{color:#647b9d!important;font-size:11px!important}
+.directory-item .more-btn{background:#eef5ff!important;border:1px solid #e5effe!important;border-radius:13px!important;width:42px!important;height:42px!important}
+.directory-item .item-icon{border-radius:12px!important}
+.directory-item .item-name>:not(.item-icon):not(.item-text),.directory-item .item-text>:not(.item-title):not(.item-subtitle),.directory-item .rename-btn,.directory-item .quick-rename,.directory-item .inline-actions,.directory-item .item-quick-actions,.directory-item .fav-btn{display:none!important}
+.arc-v2-tabs{background:rgba(255,255,255,.94)!important;backdrop-filter:blur(18px);border:1px solid #fff!important;border-radius:23px 23px 0 0!important;box-shadow:0 -8px 26px #195da926!important}
+.arc-v2-tabs button{border-radius:14px!important;color:#415673!important}
+.arc-v2-tabs button[aria-current="page"]{color:#fff!important;background:linear-gradient(150deg,#04a9ec,#0059d8)!important;box-shadow:0 4px 12px #006de63d!important}
+.arc-v2-tabs button[aria-current="page"] svg{stroke:#fff!important}
+.arc-v2-panel{border-radius:18px!important;background:linear-gradient(140deg,#fff,#eff6ff)!important;box-shadow:0 8px 25px #1a5da71c!important}
+.arc-v2-toolgrid button{background:linear-gradient(135deg,#f3f9ff,#e3f0ff)!important;border:1px solid #dbeaff!important}
+@media(prefers-reduced-motion:reduce){.arc-v2-quick button{transition:none!important}}
+}
